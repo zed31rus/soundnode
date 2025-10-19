@@ -1,0 +1,18 @@
+{
+	"name": "sveltekittemplate",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"main": "./main.js",
+	"scripts": {
+		"dev": "electron ./main.js",
+		"dev:api": "node ./api/socket.js"
+	},
+	"dependencies": {
+		"electron": "^38.2.2",
+		"fast-deep-equal": "^3.1.3",
+		"socket.io": "^4.8.1",
+		"socket.io-client": "^4.8.1",
+		"soundpad.js": "^2.6.2"
+	}
+}
