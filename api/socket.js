@@ -20,6 +20,20 @@ export default function socket(cookieHeader) {
         console.log("Authenticated as", res.user.login);
         });
 
+        //client connected
+        socket.on("initStates", async (nodereq, noderes) => {
+            const current = await soundpad.getCurrent();
+            const history = await soundpad.getHistory();
+            const soundList = await soundpad.getSoundListJSON();
+            const volume = await soundpad.getVolume();
+
+            socket.emit('currentUpdated', current, () => {});
+            socket.emit('historyUpdated', history, () => {});
+            socket.emit('soundListUpdated', soundList, () => {});
+            socket.emit('volumeUpdated', volume, () => {});
+            noderes({ ok: true, message: `initial state succesfully transmitted`, data: null })
+        })
+
         //play
         socket.on("play", async (serverReq, serverRes) => {
         try {
@@ -45,6 +59,45 @@ export default function socket(cookieHeader) {
             serverRes?.({ ok: false, message: err.message, data: null });
         }
         });
+        
+        //togglePause
+        socket.on("togglePause", async (serverReq, serverRes) => {
+        try {
+            const res = await soundpad.togglePause();
+            serverRes?.(res
+            ? { ok: true, message: `sound paused successfully`, data: null }
+            : { ok: false, message: `sound paused error`, data: null }
+            );
+        } catch (err) {
+            serverRes?.({ ok: false, message: err.message, data: null });
+        }
+        });
+
+        //jump
+        socket.on("jump", async (serverReq, serverRes) => {
+        try {
+            const res = await soundpad.jump(serverReq.percentage);
+            serverRes?.(res
+            ? { ok: true, message: `sound jumped ${serverReq.percentage} successfully`, data: null }
+            : { ok: false, message: `sound jumped ${serverReq.percentage} error`, data: null }
+            );
+        } catch (err) {
+            serverRes?.({ ok: false, message: err.message, data: null });
+        }
+        });
+
+        //setVolume
+        socket.on("setVolume", async (serverReq, serverRes) => {
+        try {
+            const res = await soundpad.setVolume(serverReq.volume);
+            serverRes?.(res
+            ? { ok: true, message: `volume ${serverReq.volume} setted successfully`, data: null }
+            : { ok: false, message: `volume ${serverReq.volume} set error`, data: null }
+            );
+        } catch (err) {
+            serverRes?.({ ok: false, message: err.message, data: null });
+        }
+        });
 
         //getSoundListJSON
         socket.on("getSoundListJSON", async (serverReq, serverRes) => {
@@ -58,16 +111,6 @@ export default function socket(cookieHeader) {
             serverRes?.({ ok: false, message: err.message, data: null });
         }
         });
-
-        const current = await soundpad.getCurrent();
-        const history = await soundpad.getHistory();
-        const soundList = await soundpad.getSoundListJSON();
-        const volume = await soundpad.getVolume();
-
-        socket.emit('currentUpdated', current, () => {});
-        socket.emit('historyUpdated', history, () => {});
-        socket.emit('soundListUpdated', soundList, () => {});
-        socket.emit('volumeUpdated', volume, () => {});
 
         soundpad.on("currentUpdated", (current) => {
         socket.emit("currentUpdated", current, () => {});

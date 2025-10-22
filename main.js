@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, protocol } from "electron";
+import { app, BrowserWindow, ipcMain, Tray, Menu } from "electron";
 import { fileURLToPath } from "url";
 import path, { dirname, join } from "path";
 import socket from "./api/socket.js"
@@ -6,23 +6,75 @@ import socket from "./api/socket.js"
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let win;
+let tray;
 
 function createWindow() {
     win = new BrowserWindow({
-        width:800,
-        height:600,
+        width:1200,
+        minWidth: 800,
+        height:900,
+        minHeight:600,
+        icon : path.join(__dirname, "/assests", "/soundnode.png"),
+        resizable: true,
         webPreferences: {
             contextIsolation: true,
+            nodeIntegration: false,
             preload: path.join(__dirname, 'preload.js')
         }
     });
 
+    if (app.isPackaged) {
+        win.menuBarVisible = false;
+        win.setMenu(null)
+        win.webContents.on('devtools-opened', () => {
+            win.webContents.closeDevTools();
+        });
+    } else {
+        win.webContents.openDevTools();
+    }
+
     win.loadURL("https://zed31rus.ru");
 };
 
-app.on('ready', () => {
-    createWindow()
-});
+function createTray() {
+    const iconPath = path.join(__dirname, "/assests", "/soundnode.png"); 
+    tray = new Tray(iconPath);
+
+    const contextMenu = Menu.buildFromTemplate([
+        { 
+            label: 'Open', 
+            click: () => {
+                win.show();
+                win.focus();
+            } 
+        },
+        { 
+            label: 'Close', 
+            click: () => {
+                app.isQuitting = true;
+                app.quit();
+            } 
+        }
+    ]);
+    
+    tray.setToolTip('Soundnode');
+    tray.setContextMenu(contextMenu);
+
+    tray.on('click', () => {
+        if (win.isVisible()) {
+            win.hide();
+        } else {
+            win.show();
+            win.focus();
+        }
+    });
+}
+
+app.on("ready", () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    createTray();
+})
+
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") app.quit();
