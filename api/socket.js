@@ -112,6 +112,10 @@ export default function socket(cookieHeader) {
         }
         });
 
+        socket.on("addFavourite", async (serverReq, ServerRes) => {
+            
+        })
+
         soundpad.on("currentUpdated", (current) => {
         socket.emit("currentUpdated", current, () => {});
         });
