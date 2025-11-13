@@ -21,7 +21,7 @@
 	},
 	"build": {
 		"appId": "ru.zed31rus.soundnode",
-		"icon": "assets/soundnode.png",
+		"icon": "build/soundnode.png",
 		"win": {
 			"target": "nsis"
 		},
