@@ -11,7 +11,6 @@
   
 - **sounpdad.js**  
 - **JavaScript**  
-- **electron**
 - **socket.io**
 
 ## 🚀 Быстрый старт
