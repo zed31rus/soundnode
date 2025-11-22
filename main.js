@@ -1,9 +1,10 @@
 import { app, BrowserWindow, ipcMain, Tray, Menu } from "electron";
 import { fileURLToPath } from "url";
-import path, { dirname, join } from "path";
-import socket from "./api/socket.js"
+import path, {dirname} from "path";
+import socketApi from "./api/socket.js"
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const socket = new socketApi();
 
 let win;
 let tray;
@@ -83,6 +84,14 @@ app.on("window-all-closed", () => {
 ipcMain.handle('activateSocket', async (event, arg) => {
     const cookies= await win.webContents.session.cookies.get({url: 'https://zed31rus.ru'})
     const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join(";");
-    socket(cookieHeader)
+    socket.init("https://nodes.zed31rus.ru", cookieHeader)
     console.log("socket activated...")
 });
+
+ipcMain.handle('disconnectSocket', async(event, arg) => {
+    socket.closeSocket();
+})
+
+socket.on("updateState", (state) => {
+    win.webContents.send('updateSocketState', state)
+})

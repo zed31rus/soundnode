@@ -1,7 +1,7 @@
 {
 	"name": "soundnode",
 	"private": true,
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"type": "module",
 	"main": "./main.js",
 	"author": "zed31rus_",
@@ -24,12 +24,6 @@
 		"icon": "build/soundnode.png",
 		"win": {
 			"target": "nsis"
-		},
-		"mac": {
-			"target": "dmg"
-		},
-		"linux": {
-			"target": "AppImage"
 		}
 	},
 	"devDependencies": {
